@@ -15,7 +15,11 @@ from pygame.locals import *
 import Entity
 
 _GAMETICK = 60
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> 83493b1 (this is a useless commit)
 #
 # KEYBINDS
 #
@@ -38,8 +42,12 @@ class App:
         self.size = self.width, self.height = 640, 400
         self.mouseDown = False
         self.clock = pygame.time.Clock()
+<<<<<<< HEAD
     #
     #
+=======
+        
+>>>>>>> 83493b1 (this is a useless commit)
     def on_init(self):
         pygame.init()
         self.screen = pygame.display.set_mode(self.size)
@@ -56,6 +64,7 @@ class App:
         for box_y in range(0,self.width+50,50):
             self.walls.add(Entity.Box(self.width,box_y))
         self.rotate_walls()
+<<<<<<< HEAD
     #
     #
     def rotate_walls(self):
@@ -66,10 +75,23 @@ class App:
     def on_event(self,event):
         if event.type == pygame.QUIT:
             self._running = False
+=======
+    def rotate_walls(self):
+        for wall in self.walls:
+            wall.image = pygame.transform.rotate(wall.image,90)
+    def on_event(self,event):
+        if event.type == pygame.QUIT:
+            self._running = False
+        
+>>>>>>> 83493b1 (this is a useless commit)
     #
     #
     def on_loop(self):
         pass
+<<<<<<< HEAD
+=======
+            
+>>>>>>> 83493b1 (this is a useless commit)
     #
     #
     def on_render(self):
@@ -81,12 +103,18 @@ class App:
                 
         
         pygame.display.flip()
+<<<<<<< HEAD
     
+=======
+>>>>>>> 83493b1 (this is a useless commit)
     #
     #
     def on_cleanup(self):
         pygame.quit()
+<<<<<<< HEAD
 
+=======
+>>>>>>> 83493b1 (this is a useless commit)
     #
     #
     def on_execute(self):
@@ -100,7 +128,11 @@ class App:
             self.on_render()
             self.clock.tick(_GAMETICK)
         self.on_cleanup()   
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> 83493b1 (this is a useless commit)
 
 
 if __name__ == "__main__":
