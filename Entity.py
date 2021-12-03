@@ -12,7 +12,8 @@ import os
 imdir = os.getcwd()+'\\icoFrames\\'
 
 class Sprite(pygame.sprite.Sprite):
-    
+    #
+    #
     def __init__(self, image, startX, startY):
         super().__init__()
         
@@ -20,7 +21,8 @@ class Sprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         
         self.rect.center = [startX,startY]
-    
+    #
+    #
     def draw(self,screen):
         screen.blit(self.image, self.rect)
 
@@ -63,11 +65,14 @@ class Box(Entity):
     
     def __init__(self,startX,startY):
         super().__init__("overlay.png", startX, startY)
-        
-        
-        
+
+
+
 class Enemy(Entity):
     pass
+
+
+
 class Player(Entity):
     
     def __init__(self, startX, startY):
@@ -76,6 +81,9 @@ class Player(Entity):
         self.walk_cycle = [pygame.image.load(imdir+f"{i}.gif") for i in range (1,8)]
         self.frame_speed = int(_GAMETICK/len(self.walk_cycle)-1)
         
+        
+        self.jump_count = 0
+        self.max_jumps = 2
         self.facing_left = True
     #
     #
@@ -112,7 +120,7 @@ class Player(Entity):
             hspd = -speed
         #
         #MOVE_RIGHT        
-        elif key[pygame.K_RIGHT]:
+        elif key[pygame.K_RIGHT]:       
             self.facing_left = False
             self.moving = True
             hspd = speed
@@ -130,8 +138,9 @@ class Player(Entity):
                 hspd = +speed
         #
         #JUMP
-        if key[pygame.K_UP] and onGround:
+        if key[pygame.K_UP] and onGround or key[pygame.K_UP] and self.jump_count < self.max_jumps:
             self.vspd = -self.jumpspeed
+            self.jump_count+=1
         #
         #GRAVITY
         if self.vspd <10:
@@ -139,6 +148,7 @@ class Player(Entity):
         #
         if self.vspd >0 and onGround:
             self.vspd = 0
+            self.jump_count = 0
         
         self.current_speed = hspd
         self._move(hspd,self.vspd)
