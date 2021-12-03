@@ -5,8 +5,8 @@
 # @ㇼㇼ
 #
 import pygame
-from slidescroller import KEYBINDS
-from slidescroller import _GAMETICK
+from main import KEYBINDS
+from main import _GAMETICK
 import os
 
 imdir = os.getcwd()+'\\icoFrames\\'
