@@ -15,7 +15,7 @@ from pygame.locals import *
 import Entity
 
 _GAMETICK = 60
-
+ 
 #
 # KEYBINDS
 #
@@ -38,7 +38,8 @@ class App:
         self.size = self.width, self.height = 640, 400
         self.mouseDown = False
         self.clock = pygame.time.Clock()
-        
+    #
+    #
     def on_init(self):
         pygame.init()
         self.screen = pygame.display.set_mode(self.size)
@@ -55,18 +56,20 @@ class App:
         for box_y in range(0,self.width+50,50):
             self.walls.add(Entity.Box(self.width,box_y))
         self.rotate_walls()
+    #
+    #
     def rotate_walls(self):
         for wall in self.walls:
             wall.image = pygame.transform.rotate(wall.image,90)
+    #
+    #
     def on_event(self,event):
         if event.type == pygame.QUIT:
             self._running = False
-        
     #
     #
     def on_loop(self):
         pass
-            
     #
     #
     def on_render(self):
@@ -78,10 +81,12 @@ class App:
                 
         
         pygame.display.flip()
+    
     #
     #
     def on_cleanup(self):
         pygame.quit()
+
     #
     #
     def on_execute(self):
@@ -95,7 +100,7 @@ class App:
             self.on_render()
             self.clock.tick(_GAMETICK)
         self.on_cleanup()   
-
+ 
 
 
 if __name__ == "__main__":
