@@ -1,14 +1,9 @@
 #
-# slideScroller
-# main
+# gamepls
 #
 # @ㇼㇼ
 #
-#
-# VectorMovement
-#
-# @ㇼㇼ
-#
+
 import math
 import pygame
 from pygame.locals import *
@@ -49,33 +44,37 @@ class App:
         self._running = True       
         
         self.player = Entity.Player(100,200)
-        self.boxes = pygame.sprite.Group()
+        self.enemy = Entity.Enemy(500,200)
+        
+        self.terrain = pygame.sprite.Group()
+        
+        self.floors = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
-        for box_x in range(0,self.width+50,50):
-            self.boxes.add(Entity.Box(box_x,self.height))
-            
-        for box_y in range(0,self.width+50,50):
-            self.walls.add(Entity.Box(0,box_y))
-        for box_y in range(0,self.width+50,50):
-            self.walls.add(Entity.Box(self.width,box_y))
+        self.enemies = pygame.sprite.Group()
+        
+        self.enemies.add(self.enemy)
+        
+        for floor in range(0,self.width+50,50):
+            self.terrain.add(Entity.Box(floor,self.height))
+        self.terrain.add(Entity.Box(self.width/2,self.height-50))
+        
+        for wall in range(0,self.width+50,50):
+            self.walls.add(Entity.Box(0,wall))
+        for wall in range(0,self.width+50,50):
+            self.walls.add(Entity.Box(self.width,wall))
         self.rotate_walls()
     #
     #
     def rotate_walls(self):
         for wall in self.walls:
             wall.image = pygame.transform.rotate(wall.image,90)
+            self.terrain.add(wall)
     #
     #
     def on_event(self,event):
         if event.type == pygame.QUIT:
             self._running = False
 
-    def rotate_walls(self):
-        for wall in self.walls:
-            wall.image = pygame.transform.rotate(wall.image,90)
-    def on_event(self,event):
-        if event.type == pygame.QUIT:
-            self._running = False
         
     #
     #
@@ -90,8 +89,10 @@ class App:
         # start new frame
         self.screen.fill((50,50,50))
         self.player.draw(self.screen)
-        self.boxes.draw(self.screen)
-        self.walls.draw(self.screen)
+        self.enemy.draw(self.screen)
+        #self.floors.draw(self.screen)
+        #self.walls.draw(self.screen)
+        self.terrain.draw(self.screen)
                 
         
         pygame.display.flip()
@@ -111,7 +112,8 @@ class App:
         while(self._running):            
             for event in pygame.event.get():
                 self.on_event(event)
-            self.player._update(self.boxes,self.walls)
+            self.player._update(self.terrain,self.enemies)
+            self.enemy._update(self.terrain,[self.player])
             self.on_loop()
             self.on_render()
             self.clock.tick(_GAMETICK)

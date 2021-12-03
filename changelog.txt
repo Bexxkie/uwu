@@ -1,0 +1,18 @@
+CHANGELOG
+
+- Moved movement stuff into parent Entity class
+
+
+- added enemy that follows the player
+  - when near it will overlay red to show its in attack range or whatever
+  - player will bounce on head
+  - will attempt to jump over terrain between the player
+  
+  
+- added hopping as default movement 
+  - Hold shift to 'sprint' (speed*1.2), stops hopping
+
+
+- added collision to terrain (kinda)
+	
+  
