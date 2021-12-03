@@ -1,0 +1,14 @@
+#
+# TODO
+#
+#
+# @ㇼㇼ
+
+
+[] Improve movement 
+[] Make the screen move
+[] Make an actual level type thing
+[] Make graphics
+[] Make proper 2d physics system
+
+
