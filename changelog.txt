@@ -2,7 +2,6 @@ CHANGELOG
 
 - Moved movement stuff into parent Entity class
 
-
 - added enemy that follows the player
   - when near it will overlay red to show its in attack range or whatever
   - player will bounce on head

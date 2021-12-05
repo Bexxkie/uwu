@@ -9,6 +9,7 @@ from main import KEYBINDS
 from main import _GAMETICK
 import os
 import math
+import random
 imdir = os.getcwd()+'\\icoFrames\\'
 
 class Sprite(pygame.sprite.Sprite):
@@ -34,6 +35,8 @@ class Entity(Sprite):
     def __init__(self, image, startX, startY):
         super(Entity,self).__init__(image,startX,startY)
         
+        self.ai_enabled = True
+        
         self.alive  = True
         self.health = 100
         self.ground_speed = 4
@@ -44,6 +47,7 @@ class Entity(Sprite):
         self.walk_cycle = [None]
         self.frame_speed = 0
         self.facing_left = True
+        self.on_enemy = False
     
         self.can_dbl_jump = False
         self.jumpspeed = 15
@@ -57,7 +61,7 @@ class Entity(Sprite):
         
         self.current_speed =0
         self.moving= False
-        
+        self.lastWallTouched = None
         
         self.animation_index = 0
         self.frame  = 0
@@ -86,36 +90,48 @@ class Entity(Sprite):
     #
     #
     # Need to change this for something better later
-    def _update(self,terrain,enemies):
+    def _update(self,terrain,enemies,player=None):
         hspd = 0
         speed = self.ground_speed
         fric = self.air_friction
         self.sprint = False
-        
         
         #collideTerrain = pygame.sprite.spritecollideany(self,terrain)
         #onGround   = pygame.sprite.spritecollideany(self,floors)
         #touchWall  = pygame.sprite.spritecollideany(self,walls)
         touchEnemy = pygame.sprite.spritecollideany(self,enemies)
         onGround = None
-        rightWall = None
-        leftWall = None
+        collideRight = None
+        collideLeft = None
         
-        
+        #
+        # find what side the collision occurs
+        # 
+        #
         for ter in terrain:
              if pygame.sprite.collide_rect(self, ter): 
                 tldist = self.get_distance(ter.rect.topright,self.rect.topleft)
-                trdist = self.get_distance(ter.rect.topleft,self.rect.topright)
+                trdist = self.get_distance(ter.rect.topleft,self.rect.topright) 
                 if self.rect.bottom - ter.rect.top <= 10 and tldist >=self.rect.h-5 and trdist >=self.rect.h-5:
                     onGround = ter
                 #-->>
                 elif self.rect.right - ter.rect.left < 10:
-                    rightWall = ter
+                    collideRight = ter
+                    self.lastWallTouched = ter
                 #<<--
                 elif self.rect.left - ter.rect.right < 10:
-                    leftWall = ter
+                    collideLeft = ter
+                    self.lastWallTouched = ter
+                    #print(self.lastWallTouched)
+        
+        if self.lastWallTouched is not None:
+            #
+            #
+            dis = self.get_distance(self.rect.center,self.lastWallTouched.rect.center)
+            if dis >= self.rect.w*1.5:
+                self.lastWallTouched = None
                 
-            
+        
         if onGround:
             fric = self.ground_friction
         
@@ -132,30 +148,39 @@ class Entity(Sprite):
             
         #
         #MOVE_LEFT
-            if key[pygame.K_LEFT] and leftWall is  None:
-                self.facing_left = True
-                self.moving = True
-                hspd = -speed
+            if key[pygame.K_LEFT]:
+                if self.lastWallTouched is None or self.lastWallTouched.rect.x > self.rect.x:
+                    self.facing_left = True
+                    self.moving = True
+                    hspd = -speed
             #
             #MOVE_RIGHT        
-            elif key[pygame.K_RIGHT] and rightWall is  None: 
-                self.facing_left = False
-                self.moving = True
-                hspd = speed
-
+            elif key[pygame.K_RIGHT]: 
+                if self.lastWallTouched is None or self.lastWallTouched.rect.x < self.rect.x:
+                    self.facing_left = False
+                    self.moving = True
+                    hspd = speed
+            
+            #
+            # player momentum, the sliding when key is released
             elif self.moving:
+                # moving right subtract from speed for friction
                 if self.current_speed > 0:
                     hspd = self.current_speed - fric
+                # moving left add to speed for friction
                 if self.current_speed < 0:
                     hspd = self.current_speed + fric
                 if abs(self.current_speed) <= 0.2:
-                    self.moving = False                               
+                    self.moving = False
+            
+            #
+            # Doublejump set, have to release jump key before jumping again
             if not key[pygame.K_UP] and self.jump_count >0:
                 self.can_dbl_jump = True
             #
             #JUMP
             if key[pygame.K_UP]:
-                if onGround and leftWall is None and rightWall is None:
+                if onGround and collideLeft is None and collideRight is None:
                     self.vspd = -self.jumpspeed
                     self.jump_count+=1
                 elif self.jump_count < self.max_jumps and self.can_dbl_jump:
@@ -163,62 +188,84 @@ class Entity(Sprite):
                     self.jump_count+=1
        
        # not a player
-        else:
+       # basic followPlayer 
+       # 
+        elif self.ai_enabled:
             #
             # D = sqrt x2-x1**2 + y2-y1**2
             
-            distance = self.get_distance(enemies[0].rect.center, self.rect.center)
+            distance = self.get_distance(player.rect.center, self.rect.center)
             #Move_left
-            if enemies[0].rect.x+(self.rect.width*1.5) < self.rect.x:
-                if leftWall:
+            target_distance = self.rect.width*(random.uniform(1.1,2.0))
+            if player.rect.x+target_distance < self.rect.x:
+                if collideLeft:
                     self.vspd = -self.jumpspeed
-                hspd = -speed
+                hspd = -speed*random.uniform(.3,1.3)
                 self.moving = True
                 self.facing_left = True
             #Move_right
-            if enemies[0].rect.x-(self.rect.width*1.5) > self.rect.x:
-                if rightWall:
+            if player.rect.x-target_distance > self.rect.x:
+                if collideRight:
                     self.vspd = -self.jumpspeed
-                hspd = +speed
+                hspd = +speed*random.uniform(.3,1.3)
                 self.moving = True
                 self.facing_left = False
-            if distance < self.rect.width*1.8:
+                
+            if distance < target_distance:
                 self.color_mod = (255,0,0,100)
                 self.recolour()
             else:
                 self.color_mod = (0,0,0,0)
-            
+        
+        
         # COLLISION STUFF 
         #
-        #
+        # Non-terrain collision
         if self.moving and touchEnemy:
-            if self.is_player and self.rect.y < touchEnemy.rect.y:
+            if self.rect.y < touchEnemy.rect.y and not self.on_enemy:
                 self.vspd = -6
+                self.on_enemy = True
+                hspd = random.randrange(-2,2)
             #hsdp = self.rect.x-touchEnemy.rect.x
+            #
+            # make enemies jump if theyre inside eachother
+            dis = self.get_distance(self.rect.center, touchEnemy.rect.center)
+            if not self.is_player and dis <=self.rect.w and onGround:
+                self.vspd = self.vspd*random.uniform(.2,1.6)
+                
         #
-        #Wallcollision
+        # Terrain collision
         if self.moving:
-            # hop            
-            if onGround and abs(self.current_speed) > speed/2 and not self.sprint and leftWall is None and rightWall is None:
+            # hop, ensure not on a wall or something
+            if onGround and abs(self.current_speed) > speed/2 and not self.sprint and collideLeft is None and collideRight is None:
                 self.vspd = -10
             #bounce off wall
-            elif leftWall:
+            # need to change this to something better, its jank
+            # 
+            elif collideLeft:
                 hspd = 1
-            elif rightWall:
+            elif collideRight:
                 hspd = -1
         
         #
         #GRAVITY
+        # 9.8 rounded up = 10
         if self.vspd <10:
             self.vspd +=self.gravity
-        # don't fall through stuff
+        #
+        # collide with the floor, keep from going inside boxes and shit
+        #
         if onGround:
             floor = onGround.rect.y-self.rect.h+5
             if self.vspd >=0:
-                self.rect.y = floor
+                self.rect.y = floor #set the entity height to the floor height which is *floor*.top
                 self.vspd = 0
                 self.jump_count = 0
-                self.can_dbl_jump = False
+                self.can_dbl_jump = False #allow the player to do a normal jump
+        
+        #
+        # apply movement and stuff
+        #
         
         self.current_speed = hspd
         self._move(hspd,self.vspd)
