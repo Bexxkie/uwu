@@ -300,7 +300,6 @@ class Enemy(Entity):
         self.facing_left = True
         
 
-
 class Player(Entity):
     
     def __init__(self, startX, startY):

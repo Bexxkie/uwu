@@ -1,5 +1,11 @@
 CHANGELOG
 
+- started work on a new physics system 
+ - does nothing currently
+ - should be easier to handle collision than the (i think) jank sprite.collideany method.
+
+
+-----------------------------------------------------------
 - Moved movement stuff into parent Entity class
 
 - added enemy that follows the player
