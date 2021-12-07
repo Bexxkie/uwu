@@ -1,5 +1,17 @@
 CHANGELOG
 
+got collisions working (mostly)
+probably gonna go back to sprite.collideany cause im pretty sure it does the same thing im doing now
+can push other ents
+
+
+
+
+
+
+
+-----------------------------------------------------------
+
 - started work on a new physics system 
  - does nothing currently
  - should be easier to handle collision than the (i think) jank sprite.collideany method.
