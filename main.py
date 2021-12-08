@@ -61,6 +61,7 @@ class App:
         for floor in range(0,self.width+50,50):
             self.terrain.add(Entity.Box(floor,self.height))
         self.terrain.add(Entity.Box(self.width/2,self.height-50))
+        self.terrain.add(Entity.Box(self.width/2,self.height-200))
         
         for wall in range(0,self.width+50,50):
             self.walls.add(Entity.Box(0,wall))

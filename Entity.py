@@ -103,6 +103,7 @@ class Entity(Sprite):
         onGround = None
         collideRight = None
         collideLeft = None
+        collideTop = None
         
         #
         # find what side the collision occurs
@@ -114,6 +115,8 @@ class Entity(Sprite):
                 trdist = self.get_distance(ter.rect.topleft,self.rect.topright) 
                 if self.rect.bottom - ter.rect.top <= 10 and tldist >=self.rect.h-5 and trdist >=self.rect.h-5:
                     onGround = ter
+                elif self.rect.top - ter.rect.bottom <=10 and tldist >=self.rect.h-10 and trdist >=self.rect.h-10:
+                    collideTop = ter
                 #-->>
                 elif self.rect.right - ter.rect.left < 10:
                     collideRight = ter
@@ -180,7 +183,8 @@ class Entity(Sprite):
             #
             #JUMP
             if key[pygame.K_UP]:
-                if onGround and collideLeft is None and collideRight is None:
+                if (onGround or self.on_enemy) and collideLeft is None and collideRight is None:
+                    self.on_enemy = False
                     self.vspd = -self.jumpspeed
                     self.jump_count+=1
                 elif self.jump_count < self.max_jumps and self.can_dbl_jump:
@@ -222,31 +226,36 @@ class Entity(Sprite):
         #
         # Non-terrain collision
         if self.moving and touchEnemy:
-            if self.rect.y < touchEnemy.rect.y and not self.on_enemy:
-                self.vspd = -6
-                self.on_enemy = True
-                hspd = random.randrange(-2,2)
-            #hsdp = self.rect.x-touchEnemy.rect.x
-            #
-            # make enemies jump if theyre inside eachother
-            dis = self.get_distance(self.rect.center, touchEnemy.rect.center)
-            if not self.is_player and dis <=self.rect.w and onGround:
-                self.vspd = self.vspd*random.uniform(.2,1.6)
-                
+            if self is not touchEnemy:
+                if self.rect.y < touchEnemy.rect.y:
+                    self.vspd = -1
+                    self.rect.bottom = touchEnemy.rect.top
+                    self.on_enemy = True
+                    #hspd = random.randrange(-2,2)
+                #hsdp = self.rect.x-touchEnemy.rect.x
+                #
+                # make enemies jump if theyre inside eachother
+                #dis = self.get_distance(self.rect.center, touchEnemy.rect.center)
+                #print(dis)
+                if self.rect.x < touchEnemy.rect.x:
+                    hspd = -1
+                elif self.rect.x > touchEnemy.rect.x:
+                    hspd = 1
         #
         # Terrain collision
         if self.moving:
             # hop, ensure not on a wall or something
-            if onGround and abs(self.current_speed) > speed/2 and not self.sprint and collideLeft is None and collideRight is None:
-                self.vspd = -10
+            #if onGround and abs(self.current_speed) > speed/2 and not self.sprint and collideLeft is None and collideRight is None:
+            #    self.vspd = -10
             #bounce off wall
             # need to change this to something better, its jank
             # 
-            elif collideLeft:
+            if collideLeft:
                 hspd = 1
             elif collideRight:
                 hspd = -1
-        
+            elif collideTop:
+                self.vspd = 3
         #
         #GRAVITY
         # 9.8 rounded up = 10

@@ -1,9 +1,15 @@
 CHANGELOG
 
+
+decided to go back to pygames built in collision stuff since mine was basically the same but worse
+did learn more about how to do some things from my custom attempt tho.
+
+
+
+----------------------------------------------------------
 got collisions working (mostly)
 probably gonna go back to sprite.collideany cause im pretty sure it does the same thing im doing now
 can push other ents
-
 
 
 
